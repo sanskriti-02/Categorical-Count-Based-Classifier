@@ -417,7 +417,7 @@ def all_repetition(X, y, models = classifiers):
                 y_pred = model.predict(X_test)
         
                 # Calculate and store the accuracy score for each iteration
-                accuracies.append(accuracy_ score(y_test,y_pred))
+                accuracies.append(accuracy_score(y_test,y_pred))
         
             # Print the list of accuracy scores
             print(accuracies)
