@@ -340,46 +340,54 @@ def all_dataset_error(X, y, X_train, X_test, y_train, y_test, models = classifie
 
     for classifier in models.keys():
 
-        print('*********',classifier,'*********\n')
-        
-        # Finding label errors in the dataset according to classifier using cleanlabs
-        indexes = cleanlab_label_errors(models[classifier],X,y)
-        
-        # Removing the label errors from the train dataset
-        X_train1 = X_train.copy()
-        y_train1 = y_train.copy()
-        for indx in X_train1.index:
-            if indx in indexes:
-                X_train1.drop(indx, axis=0, inplace=True)
-                y_train1.drop(indx, inplace=True)
-    
-        # Removing the label errors from the test dataset
-        X_test1 = X_test.copy()
-        y_test1 = y_test.copy()
-        for indx in X_test1.index:
-            if indx in indexes:
-                X_test1.drop(indx, axis=0, inplace=True)
-                y_test1.drop(indx, inplace=True)
-        
-        print("\nResults after removing label errors from the entire dataset:")
-        display(classification_evaluation(X_train1, X_test1, y_train1, y_test1)[0])
+        try:
 
-        if len(y.unique()) == 2:
-
-            # Correcting label errors in train dataset for datasets with binary classes
+            print('*********',classifier,'*********\n')
+            
+            # Finding label errors in the dataset according to classifier using cleanlabs
+            indexes = cleanlab_label_errors(models[classifier],X,y)
+            
+            # Removing the label errors from the train dataset
+            X_train1 = X_train.copy()
             y_train1 = y_train.copy()
-            for indx in y_train1.index:
+            for indx in X_train1.index:
                 if indx in indexes:
-                    y_train1[indx] = 1 - y_train1[indx]
-
-            # Correcting label errors in test dataset for datasets with binary classes
+                    X_train1.drop(indx, axis=0, inplace=True)
+                    y_train1.drop(indx, inplace=True)
+        
+            # Removing the label errors from the test dataset
+            X_test1 = X_test.copy()
             y_test1 = y_test.copy()
-            for indx in y_test1.index:
+            for indx in X_test1.index:
                 if indx in indexes:
-                    y_test1[indx] = 1 - y_test1[indx]
+                    X_test1.drop(indx, axis=0, inplace=True)
+                    y_test1.drop(indx, inplace=True)
+            
+            print("\nResults after removing label errors from the entire dataset:")
+            display(classification_evaluation(X_train1, X_test1, y_train1, y_test1)[0])
+    
+            if len(y.unique()) == 2:
+    
+                # Correcting label errors in train dataset for datasets with binary classes
+                y_train1 = y_train.copy()
+                for indx in y_train1.index:
+                    if indx in indexes:
+                        y_train1[indx] = 1 - y_train1[indx]
+    
+                # Correcting label errors in test dataset for datasets with binary classes
+                y_test1 = y_test.copy()
+                for indx in y_test1.index:
+                    if indx in indexes:
+                        y_test1[indx] = 1 - y_test1[indx]
+    
+                print("\nResults after correcting label errors from the entire dataset (applicable for datasets with binary classes only):")
+                display(classification_evaluation(X_train, X_test, y_train1, y_test1)[0])
 
-            print("\nResults after correcting label errors from the entire dataset (applicable for datasets with binary classes only):")
-            display(classification_evaluation(X_train, X_test, y_train1, y_test1)[0])
+        except Exception as e:
+            
+            # Print any exceptions that may occur during the process for debugging purposes
+            print(classifier,':',e)
+            continue
 
 ############################################################
 
@@ -388,34 +396,42 @@ def all_repetition(X, y, models = classifiers):
 
     for classifier in models.keys():
 
-        print('*********',classifier,'*********\n')
-        
-        # Create an empty list to store accuracy scores
-        accuracies = []
-    
-        # Iterate through 100 random states for train-test splits
-        for i in range(100):
+        try:
+
+            print('*********',classifier,'*********\n')
             
-            # Split the dataset with an 80:20 train-test split ratio using a different random state each time
-            X_train,X_test,y_train,y_test = train_test_split(X, y, test_size=0.2, random_state=i)
-    
-            # Create an instance of the CategoricalCBC model
-            model = models[classifier]
-    
-            # Fit the model on the training data and predict the target values for the test dataset
-            model.fit(X_train,y_train)
-            y_pred = model.predict(X_test)
-    
-            # Calculate and store the accuracy score for each iteration
-            accuracies.append(accuracy_score(y_test,y_pred))
-    
-        # Print the list of accuracy scores
-        print(accuracies)
-    
-        # Print the standard deviation and mean of the accuracy scores
-        print("\nStandard Deviation:",np.std(accuracies))
-        print("Mean:",np.mean(accuracies))
-        print()
+            # Create an empty list to store accuracy scores
+            accuracies = []
+        
+            # Iterate through 100 random states for train-test splits
+            for i in range(100):
+                
+                # Split the dataset with an 80:20 train-test split ratio using a different random state each time
+                X_train,X_test,y_train,y_test = train_test_split(X, y, test_size=0.2, random_state=i)
+        
+                # Create an instance of the CategoricalCBC model
+                model = models[classifier]
+        
+                # Fit the model on the training data and predict the target values for the test dataset
+                model.fit(X_train,y_train)
+                y_pred = model.predict(X_test)
+        
+                # Calculate and store the accuracy score for each iteration
+                accuracies.append(accuracy_ score(y_test,y_pred))
+        
+            # Print the list of accuracy scores
+            print(accuracies)
+        
+            # Print the standard deviation and mean of the accuracy scores
+            print("\nStandard Deviation:",np.std(accuracies))
+            print("Mean:",np.mean(accuracies))
+            print()
+
+        except Exception as e:
+            
+            # Print any exceptions that may occur during the process for debugging purposes
+            print(classifier,':',e)
+            continue        
 
 ############################################################
 
@@ -424,45 +440,54 @@ def all_kfold_cross_validation(X, y, models=classifiers):
 
     for classifier in models.keys():
 
-        print('*********',classifier,'*********\n')
+        try:
+
+            print('*********',classifier,'*********\n')
+            
+            # Create an instance of StratifiedKFold with 5 splits
+            sk_folds = StratifiedKFold(n_splits = 5)
         
-        # Create an instance of StratifiedKFold with 5 splits
-        sk_folds = StratifiedKFold(n_splits = 5)
-    
-        # Define the classifier for cross-validation
-        model = models[classifier]
-    
-        # Initialize a PrettyTable to display evaluation metrics
-        table = PrettyTable()
-        table.field_names = ["Evaluation Metric", "Value"]
-    
-        # Calculate and display accuracy scores during cross-validation
-        accuracy = cross_val_score(model, X, y, cv=sk_folds, scoring = 'accuracy')
-        table.add_row(["Accuracy Score", accuracy])
-        table.add_row(['',''])
-        table.add_row(["Average Accuracy Score", accuracy.mean()])
-        table.add_row(['',''])
-    
-        # Calculate and display precision scores during cross-validation
-        precision = cross_val_score(model, X, y, cv=sk_folds, scoring = 'precision_micro')
-        table.add_row(["Precision Score", precision])
-        table.add_row(['',''])
-        table.add_row(["Average Precision Score", precision.mean()])
-        table.add_row(['',''])
-    
-        # Calculate and display recall scores during cross-validation
-        recall = cross_val_score(model, X, y, cv=sk_folds, scoring = 'recall_micro')
-        table.add_row(["Recall Score",  recall])
-        table.add_row(['',''])
-        table.add_row(["Average Recall Score",  recall.mean()])
-        table.add_row(['',''])
-    
-        # Calculate and display F1 scores during cross-validation
-        f1 = cross_val_score(model, X, y, cv=sk_folds, scoring = 'f1_micro')
-        table.add_row(["F1 Score", f1])
-        table.add_row(['',''])
-        table.add_row(["Average F1 Score",  f1.mean()])
-    
-        # Print the evaluation metrics table
-        print(table)
-        print()
+            # Define the classifier for cross-validation
+            model = models[classifier]
+        
+            # Initialize a PrettyTable to display evaluation metrics
+            table = PrettyTable()
+            table.field_names = ["Evaluation Metric", "Value"]
+        
+            # Calculate and display accuracy scores during cross-validation
+            accuracy = cross_val_score(model, X, y, cv=sk_folds, scoring = 'accuracy')
+            table.add_row(["Accuracy Score", accuracy])
+            table.add_row(['',''])
+            table.add_row(["Average Accuracy Score", accuracy.mean()])
+            table.add_row(['',''])
+        
+            # Calculate and display precision scores during cross-validation
+            precision = cross_val_score(model, X, y, cv=sk_folds, scoring = 'precision_micro')
+            table.add_row(["Precision Score", precision])
+            table.add_row(['',''])
+            table.add_row(["Average Precision Score", precision.mean()])
+            table.add_row(['',''])
+        
+            # Calculate and display recall scores during cross-validation
+            recall = cross_val_score(model, X, y, cv=sk_folds, scoring = 'recall_micro')
+            table.add_row(["Recall Score",  recall])
+            table.add_row(['',''])
+            table.add_row(["Average Recall Score",  recall.mean()])
+            table.add_row(['',''])
+        
+            # Calculate and display F1 scores during cross-validation
+            f1 = cross_val_score(model, X, y, cv=sk_folds, scoring = 'f1_micro')
+            table.add_row(["F1 Score", f1])
+            table.add_row(['',''])
+            table.add_row(["Average F1 Score",  f1.mean()])
+        
+            # Print the evaluation metrics table
+            print(table)
+            print()
+
+        except Exception as e:
+            
+            # Print any exceptions that may occur during the process for debugging purposes
+            print(classifier,':',e)
+            continue
+        
